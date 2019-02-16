@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>图片上传</title>
+</head>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+  html body {
+    padding: 20px;
+  }
+  #inputEle {
+    display: none;
+  }
+  #inputBtn {
+    width: 100px;
+    font-size: 20px;
+    padding: 20px;
+    background-color: #75bda3;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #showArea {
+    width: 360px;
+    height: 250px;
+    border: 1px dotted #d9d9d9;
+  }
+  p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+</style>
+<body>
+  <input
+    type="file"
+    accept="image/jpeg, image/gif, image/png, image/bmp"
+    id="inputEle"
+  />
+  <label for="inputEle">
+    <div id="inputBtn">选择图片</div>
+  </label>
+
+  <p>下方图片区域</p>
+
+  <div id="showArea">
+    <canvas id="canvasEle"></canvas>
+  </div>
+
+  <p>下方截图区域</p>
+  <canvas id="cutCanvas"></canvas>
+
+</body>
+<script>
+  let inputEle = document.getElementById('inputEle');
+  let inputBtn = document.getElementById('inputBtn');
+  let canvasEle = document.getElementById('canvasEle');
+  let canvasImg = canvasEle.getContext('2d');
+
+  // 点击图片上传
+  inputEle.addEventListener('change', function (e) {
+    // 图片预览
+    // 获得file或者Blob对象
+    let imgData = inputEle.files[0];
+    let reader = new FileReader();
+    let img = new Image();
+
+    reader.onload = function(e) {
+      // result属性是包含data:URL格式的字符串（base64编码）表示读取的文件内容
+      // 赋予图片的src，达到预览效果
+      img.src = e.target.result;
+
+      img.onload = function() {
+        canvasEle.width = img.width;
+        canvasEle.height = img.height;
+        canvasImg.drawImage(img,0,0);
+
+        let cutCanvas = document.getElementById('cutCanvas');
+        let cutCanvasImg = cutCanvas.getContext('2d');
+        let cutData = canvasImg.getImageData(0,0,200,200);
+        cutCanvasImg.putImageData(cutData,0,0);
+      }
+    }
+
+    // 读取file对象
+    reader.readAsDataURL(imgData);
+  })
+</script>
+</html>
