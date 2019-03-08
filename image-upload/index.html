@@ -45,10 +45,9 @@
   </label>
 
   <p>下方图片区域</p>
-
-  <div id="showArea">
+  <!--<div id="showArea">-->
     <canvas id="canvasEle"></canvas>
-  </div>
+  <!--</div>-->
 
   <p>下方截图区域</p>
   <canvas id="cutCanvas"></canvas>
@@ -56,17 +55,23 @@
 </body>
 <script>
   let inputEle = document.getElementById('inputEle');
-  let inputBtn = document.getElementById('inputBtn');
+  // 原始图片canvas
   let canvasEle = document.getElementById('canvasEle');
   let canvasImg = canvasEle.getContext('2d');
+  // 鼠标截图canvas
+  let cutCanvas = document.getElementById('cutCanvas');
+  let cutCanvasImg = cutCanvas.getContext('2d');
+  // 图片
+  let img = new Image();
 
   // 点击图片上传
-  inputEle.addEventListener('change', function (e) {
+  inputEle.addEventListener('change', upload, true);
+
+  function upload(e) {
     // 图片预览
     // 获得file或者Blob对象
     let imgData = inputEle.files[0];
     let reader = new FileReader();
-    let img = new Image();
 
     reader.onload = function(e) {
       // result属性是包含data:URL格式的字符串（base64编码）表示读取的文件内容
@@ -77,16 +82,46 @@
         canvasEle.width = img.width;
         canvasEle.height = img.height;
         canvasImg.drawImage(img,0,0);
-
-        let cutCanvas = document.getElementById('cutCanvas');
-        let cutCanvasImg = cutCanvas.getContext('2d');
-        let cutData = canvasImg.getImageData(0,0,200,200);
-        cutCanvasImg.putImageData(cutData,0,0);
+        screenShot();
       }
     }
-
     // 读取file对象
     reader.readAsDataURL(imgData);
-  })
+  }
+
+  function screenShot() {
+    let flag = false;
+    let startX = 0;
+    let startY = 0;
+    // 鼠标点击开始截图
+    canvasEle.addEventListener('mousedown', e => {
+      flag = true;
+      startX = e.offsetX;
+      startY = e.offsetY;
+      cutCanvasImg.clearRect(0, 0, cutCanvas.width, cutCanvas.height);
+    })
+    // 鼠标移动进入截图
+    canvasEle.addEventListener('mousemove', e => {
+      if (flag) {
+        let canvasWidth = e.offsetX - startX;
+        let canvasHeight = e.offsetY - startY;
+
+        // 清除之前的图片
+        canvasImg.clearRect(startX, startY, canvasWidth, canvasHeight);
+        canvasImg.drawImage(img, 0, 0);
+        canvasImg.strokeRect(startX, startY, canvasWidth, canvasHeight);
+
+        cutCanvas.width = canvasWidth;
+        cutCanvas.height = canvasHeight;
+        let cutData = canvasImg.getImageData(startX, startY, canvasWidth, canvasHeight);
+        cutCanvasImg.putImageData(cutData,0,0);
+      }
+    })
+    canvasEle.addEventListener('mouseup', e => {
+      flag = false;
+    })
+  }
+
+
 </script>
 </html>
