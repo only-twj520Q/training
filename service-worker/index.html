@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SW</title>
+</head>
+<body>
+    <img style="width:200px;height:200px" src="./image/test.jpg" alt="test图片"/>
+    <div id="slot"></div>
+<script src="./js/jq.js"></script>
+<script src="./js/index.js"></script>
+<script>
+  window.addEventListener("load", function() {
+    if ('serviceWorker' in navigator) {
+      // 注册Service Worker scope表示作用的页面的path
+      // register函数返回Promise
+      navigator.serviceWorker
+        .register('./sw-cache.js', {scope: './'})
+        .then(function (reg) {
+          console.log('注册成功')
+        })
+        .catch(function (err) {
+          console.log('注册失败')
+        })
+    }
+  })
+</script>
+</body>
+</html>
